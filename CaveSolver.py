@@ -20,6 +20,7 @@ LIGHT = 1
 
 BLOCK_SIZE = 50
 
+SLEEP = 0.5
 FPS = 60
 
 # Image names
@@ -44,7 +45,7 @@ THREE = pygame.transform.scale(THREE_IMAGE, (math.floor(BLOCK_SIZE * 0.9), math.
 FOUR_IMAGE = pygame.image.load(os.path.join('Assets', 'four.png'))
 FOUR = pygame.transform.scale(FOUR_IMAGE, (math.floor(BLOCK_SIZE * 0.9), math.floor(BLOCK_SIZE * 0.96)))
 
-# A cell has 6 inputs, all of which are listed below with 
+# A cell has 6 inputs, all of which are listed below with
 # what values they are expected to take:
 # row and col denote the position of a cell,
 # wall gives the nature of whether it is a wall (and if so what clue is in it),
@@ -59,21 +60,21 @@ class Cell:
         self.solved = solved #bool
         self.light_bulb = light_bulb #int -1, 0, 1
         self.lit = lit #bool
-        
-    def __repr__(self):  
+
+    def __repr__(self):
         return f"{self.wall} "
 
     def cellNotLight(self):
         self.light_bulb = NOT_LIGHT
-    
+
     def cellIsLight(self):
         self.light_bulb = LIGHT
         self.lit = True
-    
+
     def lightUpCell(self):
         self.lit = True
         self.light_bulb = NOT_LIGHT
-    
+
     # Adds a light to a cell, lighting up every cell orthagonally
     # until a wall is hit in each direction
     # returns false if a light is already seeing that square
@@ -97,7 +98,7 @@ class Cell:
             if grid[i][self.col].wall != NOT_WALL:
                 break
             grid[i][self.col].lightUpCell()
-            
+
     # Returns True if a cell is not on the edge of the grid
     def notEdge(self, n):
         if self.row == 0 or self.row == n - 1 or self.col == 0 or self.col == n - 1:
@@ -130,13 +131,13 @@ def checkAllWalls(grid, n):
                 lights += 1
             elif j != n - 1 and grid[i][j + 1].light_bulb == 0 and grid[i][j + 1].wall == NOT_WALL:
                 maybes += 1
-            
-            # If there are too many lights, or 
+
+            # If there are too many lights, or
             # if there can never be enough, return False
             if lights > grid[i][j].wall or lights + maybes < grid[i][j].wall:
                 return False
 
-            # If the number of lights matches the wall clue, 
+            # If the number of lights matches the wall clue,
             # make the rest NOT_LIGHT and say that the wall
             # is solved. Then call checkAllWalls again
             if lights == grid[i][j].wall:
@@ -151,7 +152,7 @@ def checkAllWalls(grid, n):
                 grid[i][j].solved = True
                 checkAllWalls(grid, n)
 
-            # If the sum of lights and maybes match the clue, 
+            # If the sum of lights and maybes match the clue,
             # make all maybes LIGHT and make the wall solved.
             # Then call check all walls again.
             elif lights + maybes == grid[i][j].wall:
@@ -181,10 +182,10 @@ def readInput(file):
                 cell = Cell(i, j, x, 0, False, True)
             else:
                 cell = Cell(i, j, x, 0, False, False)
-            a.append(cell) 
+            a.append(cell)
         grid.append(a)
         file.read(1)
-    
+
     return n, grid
 
 # Creates initial board setup
@@ -239,7 +240,7 @@ def drawWindow(width, grid):
                     pygame.draw.rect(window, GREY, grey_cell)
                     if grid[row][col].light_bulb == NOT_LIGHT:
                         window.blit(CROSS, (y + 1, x + 2.5))
-        
+
     pygame.display.update()
 
 # Returns true if every wall is solved and every cell is lit
@@ -252,16 +253,16 @@ def gridSolved(grid, n):
                 return False
     return True
 
-# For each square, if it can be a light, add a LIGHT and 
+# For each square, if it can be a light, add a LIGHT and
 # solve the rest based on that assumption. Anything modified
-# before that light should never be changed. 
+# before that light should never be changed.
 # If the grid solves, return True. If it doesn't,
 # make that cell not a light and try the next possiblity.
 # If the grid has no correct solution, return False
 def solveCave(grid, n, stack):
 
     while gridSolved(grid, n) == False:
-        # time.sleep(0.5)
+        time.sleep(SLEEP)
         i, j = highestProb(grid, n)
         # If that spot didn't cause the previous attempt to fail
         # by making some cells impossible to light: add a light
@@ -271,7 +272,7 @@ def solveCave(grid, n, stack):
             # Add a light to cell
             grid[i][j].addLight(grid, n)
             drawWindow(n*BLOCK_SIZE, grid)
-        if checkAllWalls(grid, n) == False: 
+        if checkAllWalls(grid, n) == False:
             if len(stack) == 0:
                 return False
             # go back a step
@@ -287,10 +288,10 @@ def solveCave(grid, n, stack):
             # make that cell not a light
             grid[i][j].cellNotLight()
             drawWindow(n*BLOCK_SIZE, grid)
-            
+
     drawWindow(n*BLOCK_SIZE, grid)
     return True
-            
+
 def allLit(grid, n):
     for row in range(n):
         for col in range(n):
@@ -316,17 +317,17 @@ def highestProb(grid, n):
                     if grid[row][j].wall != NOT_WALL:
                         break
                     elif grid[row][j].light_bulb == 0:
-                            tally += 1   
+                            tally += 1
                 for i in range(row + 1, n):
                     if grid[i][col].wall != NOT_WALL:
                         break
                     elif grid[i][row].light_bulb == 0:
-                            tally += 1   
+                            tally += 1
                 for i in range(row -1, -1, -1):
                     if grid[i][col].wall != NOT_WALL:
                         break
                     elif grid[i][row].light_bulb == 0:
-                            tally += 1 
+                            tally += 1
                 if (n*n - tally) / n*n > prob:
                     prob = (n*n - tally) / n*n
                     x = row
@@ -394,17 +395,17 @@ def cellLightable(grid, n, row, col):
     return False
 
 
-def main(): 
-    
+def main():
+
     path = "tests/" + input("file name: ")
     file = open(path, "r")
     setup = readInput(file)
-    
+
     n = setup[0]
     grid = setup[1]
     width = BLOCK_SIZE*n
 
-    stack = [] 
+    stack = []
 
     clock = pygame.time.Clock()
     drawInitial(width, grid)
@@ -413,7 +414,7 @@ def main():
         print("Puzzle not solvable.")
     else:
         drawWindow(width, grid)
-    
+
     if solveCave(grid, n, stack):
         print("Puzzle complete!")
     else:
