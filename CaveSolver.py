@@ -20,7 +20,7 @@ LIGHT = 1
 
 BLOCK_SIZE = 50
 
-SLEEP = 0.5
+SLEEP = 0
 FPS = 60
 
 # Image names

@@ -163,7 +163,6 @@ def drawInitial(width, window):
 
 # Modifies walls in setup
 def drawWalls(width, grid, window):
-
     for x in range(0, width, BLOCK_SIZE):
         for y in range(0, width, BLOCK_SIZE):
             row = x // BLOCK_SIZE
@@ -188,7 +187,6 @@ def drawWalls(width, grid, window):
 
 # Create the GUI
 def drawWindow(width, grid, window):
-
     for x in range(0, width, BLOCK_SIZE):
         for y in range(0, width, BLOCK_SIZE):
             row = x // BLOCK_SIZE
@@ -265,7 +263,6 @@ def loadCave(file):
     return n, grid
 
 def main(): 
-    
     window = pygame.display.set_mode((500, 500))
     window.fill(GREY)
     pygame.display.update()
