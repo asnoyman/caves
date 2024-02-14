@@ -24,7 +24,7 @@ BLOCK_SIZE = 50
 
 FPS = 60
 
-# # Image names
+# Image names
 LIGHT_BULB_IMAGE = pygame.image.load('Assets/light_bulb.png')
 LIGHT_BULB = pygame.transform.scale(LIGHT_BULB_IMAGE, (math.floor(BLOCK_SIZE * 0.9), math.floor(BLOCK_SIZE * 0.96)))
 
