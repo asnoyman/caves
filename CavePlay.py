@@ -4,6 +4,8 @@ import pygame
 import os
 import datetime
 import math
+import random
+import sys
 
 from os import listdir
 from os.path import isfile, join
@@ -263,14 +265,15 @@ def loadCave(file):
     return n, grid
 
 def main(): 
-    window = pygame.display.set_mode((500, 500))
+    pygame.init()
+    window = pygame.display.set_mode((1000, 1000))
     window.fill(GREY)
-    pygame.display.update()
+    pygame.display.flip()
 
     clock = pygame.time.Clock()
 
     font = pygame.font.Font(None, 32)
-    text = 'Enter grid size or load cave: '
+    text = 'Enter "r" for random or a number to build your own puzzle of that size: '
     input = '' 
 
     run = True
@@ -279,27 +282,30 @@ def main():
             clock.tick(FPS)
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit()
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_RETURN:
-                    print(text)
-                    text = ''
-                    run = False
+                    if input.strip().lower() == "r":
+                        run = False
+                    elif input.strip().isnumeric() and int(input.strip()) >= 5:
+                        run = False
+                    else:
+                        text = "Ensure that you enter a whole number greater than 4: "
                 elif event.key == pygame.K_BACKSPACE:
-                    text = text[:-1]
                     input = input[:-1]
                 else:
-                    text += event.unicode
                     input += event.unicode
         
         window.fill(GREY)
-        txt_surface = font.render(text, True, BLACK)
+        txt_surface = font.render(text + input, True, BLACK)
         window.blit(txt_surface, (100, 200))
 
-        pygame.display.update()
+        pygame.display.flip()
 
     # Load a cave from the test file
-    if input[0] == "l":
-        path = "tests/" + input[1:]
+    if input.lower() == "r":
+        rand = str(random.randint(1, 9))
+        path = "tests/" + rand
         file = open(path, "r")
         n, grid = loadCave(file)
         width = n * BLOCK_SIZE
@@ -307,13 +313,11 @@ def main():
         window.fill(BLACK)
         pausePlay = drawInitial(width, window)[1]
         drawWalls(width, grid, window)
-        pygame.display.update()
+        pygame.display.flip()
+
     # Create a blank grid to become a cave
     else:
-        n = int(input)
-        if n < 5:
-            print("Too small")
-            return
+        n = int(input.strip())
         width = n * BLOCK_SIZE
         window = pygame.display.set_mode((width, width + BLOCK_SIZE))
         window.fill(BLACK)
@@ -321,7 +325,7 @@ def main():
 
     saved = False
     run = True
-    while run:
+    while run and input.strip().isnumeric():
         for event in pygame.event.get():
             clock.tick(FPS)
             pos = pygame.mouse.get_pos()
@@ -423,8 +427,7 @@ def main():
                             else:
                                 grid[i][j].wall += 1
         drawWalls(width, grid, window)
-
-        pygame.display.update()
+        pygame.display.flip()
 
     run = True
     timer = True
@@ -514,9 +517,8 @@ def main():
         for event in pygame.event.get():
             clock.tick(FPS)
             if event.type == pygame.QUIT:
-                pygame.quit()
+                run = False
+    pygame.quit()
 
 if __name__ == "__main__":
-    pygame.init()
     main()
-    pygame.quit()
