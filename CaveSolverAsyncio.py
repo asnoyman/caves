@@ -407,7 +407,7 @@ async def main():
     clock = pygame.time.Clock()
     window = pygame.display.set_mode((width, width))
     drawInitial(window, width, grid)
-    await asyncio.sleep(0)
+    await asyncio.sleep(1)
 
     if checkAllWalls(grid, n) == False:
         print("Puzzle not solvable.")
